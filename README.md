@@ -3,8 +3,8 @@
 Update and proofread Python and R-Code for the *Introduction to Modern Mathematical Modeling with R and Python*, a Cambridge University Press book by Samuel S.P. Shen
 
 RMarkdown Codes published through Rpubs: <br />
-[Chapter 1: Basics of Climate Data Arrays, Statistics, and Visluazation](https://rpubs.com/momtaza99/RClimateStatsCh1)<br />
-[Chapter 2: Elemntary Probability and Statistics](https://rpubs.com/momtaza99/RClimateStatsCh2)<br />
+[Chapter 1: Basics of Climate Data Arrays, Statistics, and Visualization](https://rpubs.com/momtaza99/RClimateStatsCh1)<br />
+[Chapter 2: Elementary Probability and Statistics](https://rpubs.com/momtaza99/RClimateStatsCh2)<br />
 [Chapter 3: Estimation and Decision Making](https://rpubs.com/momtaza99/RClimateStatsCh3)<br />
 [Chapter 4: Regression Models and Methods](https://rpubs.com/momtaza99/RClimateStatsCh4)<br />
 [Chapter 5: Matrices for Climate Data](https://rpubs.com/momtaza99/RClimateStatsCh5)<br />
