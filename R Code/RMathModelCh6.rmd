@@ -1,0 +1,79 @@
+---
+title: "&nbsp;"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+<center><h1>Introduction to Modern Mathematical Modeling with R:</h1></center>
+<center><h1>A User's Manual to Train Mathematical Consultants</h1></center>
+<p>&nbsp;</p>
+<center><h3>A Cambridge University Press book by</h3></center>
+<center><h3>SSP Shen</h3></center>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<div align="center">R Code written by Dr. Samuel Shen, Distinguished Professor</div>
+<div align="center">San Diego State University, California, USA</div> 
+<div align="center"><https://shen.sdsu.edu></div> 
+<div align="center">Email: <sshen@sdsu.edu></div> 
+<p>&nbsp;</p>
+<div align="center">Compiled and Edited by Joaquin Stawsky</div>
+<div align="center">San Diego State University, August 2022</div>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+## Chapter 6: Mathematical Modeling By Calculus
+
+### Optimal Dimensions of Food Cans
+```{r}
+pfr <- function(r) {6*pi*r^3 + 9.4*pi*r^2 -1456.88} 
+uniroot(pfr,c(0,8))
+```
+
+<p>&nbsp;</p>
+### Optimal Production Level of Oil
+```{r}
+x <- seq(7.5,11.0,length=100)
+rev <- function(x) {10^(-3)*30*x*(10000/(x+1)^2)*(cos(0.5*(x-8.5)))} 
+plot(x,rev(x),type="l", 
+     main="Monthly Oil Revenue vs. Oil Production for a Country",
+     xlab="Oil Production [Mbbl/Day]",ylab="Billion USD" )
+grid(nx = NULL, ny = NULL)
+
+#Search for the maximum revenue
+max(rev(x))
+
+#Search for the optimal production level for the maximum revenue op=0
+for(k in 1:100){
+  if(rev(x)[k] > 28.7598){
+    op=x[k]} 
+  }
+op
+
+crrev <- function(x) {(10000/(x+1)^2)*(cos(0.5*(x-8.5)))- 
+    0.5*x*(10000/(x+1)^2)*(sin(0.5*(x-8.5)))- 
+    2*x*(10000/(x+1)^3)*(cos(0.5*(x-8.5))) } 
+uniroot(crrev,c(7.5,11))
+
+x <- seq(7.5,11.0,length=100)
+mrev <- function(x) {10^(-3)*30*x*exp(0.5*(x-10.0))*(10000/(x+1)^2)*(
+  cos(0.5*(x-8.5)))}
+plot(x,mrev(x),type="l", main="Market-Modified Oil Revenue vs. Oil
+     Production for a Country", xlab="Oil Production [Mbbl/Day]",
+     ylab="Billion USD" )
+grid(nx = NULL, ny = NULL)
+
+#Search for the maximum revenue
+max(mrev(x))
+
+#Search for the optimal production level for the maximum revenue op=0
+for(k in 1:100){
+  if(mrev(x)[k] > 18.18664){
+    op=x[k]} 
+  }
+op
+```
+
