@@ -13,5 +13,5 @@ Chapter 7: [Proabilistic Models](https://rpubs.com/momtaza99/RMathModel7)<br />
 Chapter 8: [Stochastic Models](https://rpubs.com/momtaza99/RMathModel8)<br />
 Chapter 9: [Visualize Mathematical Models By R](https://rpubs.com/momtaza99/RMathModel9)<br />
 Chapter 10: [Statistics Models and Hypothesis Tests](https://rpubs.com/momtaza99/RMathModel10)<br />
-Chapter 12: [[Concepts of Machine Learning](https://rpubs.com/momtaza99/RMathModel12)
+Chapter 12: [Concepts of Machine Learning](https://rpubs.com/momtaza99/RMathModel12)
 
