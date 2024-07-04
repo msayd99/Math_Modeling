@@ -1,0 +1,354 @@
+################## R Codes for #################################
+## Introduction to Modern Mathematical Modeling with R: 
+#   A User's Manual to Train Mathematical Consultants
+#       A Cambridge University Press book by 
+#                     SSP Shen
+# 
+# The R code was written by 
+# Samuel Shen, Distinguished Professor
+# San Diego State University
+# Email: sshen@sdsu.edu
+# www.climatestatistics.org
+# R code Version 1.0: July 2024 San Diego, California, USA
+################################################################
+
+
+################################################################
+#
+# Chapter 9: Stochastic Models
+#
+################################################################
+
+### Plot Two Different Time Series on the Same Plot
+
+#Plot US temp and prec. times series on the same figure
+#plot.new()
+par(mar = c(4.2,4.2,2.5,4.1))
+Time <- 2001:2010
+Tmean <- c(12.06, 11.78,11.81,11.72,12.02,
+           12.36,12.03,11.27,11.33,11.66)
+Prec <- c(737.11,737.87,774.95,844.55,
+          764.03,757.43,741.17,793.50,820.42,796.80)
+
+plot(Time,Tmean,
+     type="o", col="red",
+     xlab="Year", ylab=expression(paste(T[mean], " [", degree,"C]")),lwd=1.5,
+     main="Contiguous U.S. Annual Mean Temperature \nand Total Precipitation")
+grid(nx = NULL, ny = NULL)
+legend(2000.5,12.42, 
+       col=c("red"),lty=1,lwd=2.0, 
+       legend=c(expression(T[mean])),bty="n",
+       text.font=2,cex=1.0)
+
+#Allows a figure to be overlaid on the first plot
+par(new=TRUE)
+plot(Time, Prec, 
+     type="o",col="blue",
+     lwd=1.5,axes=FALSE,xlab="",ylab="") 
+legend(2000.5,839, col=c("blue"),lty=1,lwd=2.0,
+       legend=c("Precipitation"),bty="n",text.font=2,cex=1.0)
+
+#Suppress the axes and assign the y-axis to side 4
+axis(4)
+mtext("Precipitation [mm]",side=4,line=2) 
+#legend("topleft",col=c("red","blue"),lty=1,legend=c("Tmean","Prec"),cex=0.6)
+#Plot two legends at the same time make it difficult to adjust the font size
+#because of different scale
+
+
+
+### Figure setups: Margins, Fonts, Mathematical Symbols, and More
+
+#Margins, math symbol, and figure setups
+#plot.new()
+par(mar=c(6,4,3,3))
+x <- 0.25*(-30:30)
+y <- sin(x)
+x1 <- x[which(sin(x) >=0)]
+y1 <- sin(x1)
+x2 <- x[which(sin(x) < 0)]
+y2 <- sin(x2)
+plot(x1,y1,xaxt="n", xlab="",ylab="",lty=1,type="h",
+     lwd=3, tck=-0.02, ylim=c(-1,1), col="red",
+     col.lab="purple",cex.axis=1.4) 
+
+lines(x2,y2,xaxt="n", xlab="",ylab="",lty=3,type="h",
+      col="blue",lwd=8, tck=-0.02)
+
+axis(1, at=seq(-6,6,2),line=3, cex.axis=1.8)
+axis(4, at=seq(-1,1,0.5), lab=c("A", "B", "C", "D","E"),
+     cex.axis=2,las=2)
+
+text(0,0.7,font=3,cex=6, "Sine waves", col="darkgreen")
+#Itatlic font size 2
+
+mtext(side=2,line=2, 
+      expression(y==sin(theta-hat(phi))),cex=1.5, col="blue")
+mtext(font=2,
+      "Text outside of the figure on side 3",side=3,line=1, cex=1.5)
+#Bold font
+
+mtext(font=1, side=1,line=1, 
+      expression(paste("Angle in radian: ",
+                       theta-phi[0])),cex=1.5, col="red")
+
+par(mar=c(8,6,3,2))
+par(mgp=c(2.5,1,0))
+
+plot(1:200/20, rnorm(200),sub="Sub-title: 200 Random Values",
+     xlab= "Time", ylab="Random Values", main="Normal Random Values", 
+     cex.lab=2.0, cex.axis=1.75, cex.main=2.5, cex.sub=1.5)
+grid(nx = NULL, ny = NULL)
+
+par(mgp=c(2,1,0))
+plot(sin,xlim=c(10,20))
+grid(nx = NULL, ny = NULL)
+
+#A fancy plot of the NOAAGlobalTemp time series
+#setwd("~/sshen/mathmodel")
+NOAATemp <- read.table('~/Desktop/RMathModel/data/gl_land_oceanHansen.txt', 
+                       header = TRUE)
+plot.new()
+par(mar=c(4,4,3,1))
+x <- NOAATemp[,1]
+y <- NOAATemp[,2]
+z <- rep(-99,length(x))
+
+for (i in 3:length(x)-2){ 
+  z[i]<-mean(c(y[i-2],y[i-1],y[i],y[i+1],y[i+2]))
+}
+
+n1 <- which(y >= 0)
+x1 <- x[n1]
+y1 <- y[n1]
+n2 <- which(y < 0)
+x2 <- x[n2]
+y2 <- y[n2]
+x3 <- x[2:length(x)-2]
+y3 <- z[2:length(x)-2] 
+
+plot(x1,y1,
+     type="h",xlim=c(1880,2016),
+     lwd=3, tck=0.02, ylim=c(-0.7,0.7),
+     ylab="Temperature [°C]", xlab="Time",col="red",
+     main="NOAA Global Average Annual Mean Temperature Anomalies")
+grid(nx = NULL, ny = NULL)
+lines(x2,y2,type="h",lwd=3, tck=-0.02, col="blue") 
+lines(x3,y3,lwd=2)
+
+
+
+### Plot Two or More Panels on the Same Figure
+
+#Plot US temp. and prec. times series on the same figure
+par(mfrow=c(2,1))
+par(mar=c(0,5,3,1)) #Zero space between (a) and (b)
+Time <- 2001:2010
+Tmean <- c(12.06, 11.78,11.81,11.72,12.02,
+           12.36,12.03,11.27,11.33,11.66) 
+Prec <- c(737.11,737.87,774.95,844.55,764.03,
+          757.43,741.17,793.50,820.42,796.80)
+plot(Time,Tmean,
+     type="o",col="red",xaxt="n", xlab="",
+     ylab=expression(paste(T[mean]," [",degree,"C]"))) 
+grid(nx = NULL, ny = NULL)
+text(2006, 12,font=2,"US Annual Mean Temperature", cex=1.5) 
+text(2001.5,12.25,"(a)")
+#Plot the panel on row 2
+par(mar=c(3,5,0,1))
+
+plot(Time, Prec,
+     type="o",col="blue",
+     xlab="Time",ylab="Prec. [mm]") 
+grid(nx = NULL, ny = NULL)
+text(2006, 800, font=2, 
+     "US Annual Total Precipitation", cex=1.5) 
+text(2001.5,840,"(b)")
+
+rm(list=ls()) 
+#plot.new()
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE), 
+       widths=c(3,3),heights=c(2,2))
+plot(sin,type="l", xlim=c(0,20)) 
+plot(sin,xlim=c(0,10)) 
+plot(sin,xlim=c(10,20))
+
+
+
+### Basic Principles for an R Contour Plot
+
+x <- y <- seq(-1, 1, len=25)
+z <- matrix(rnorm(25*25),nrow=25)
+
+par(mar=c(3,3,3,3))
+contour(x,y,z, 
+        main="Contour Plot of Normal Random Values") 
+filled.contour(x,y,z, 
+               main="Filled Contour Plot of Normal Random Values") 
+filled.contour(x,y,z, color.palette = heat.colors, 
+               main="Filled Contour Plot of Normal Random Values \nwith Set Colors")
+filled.contour(x,y,z, 
+               color.palette = colorRampPalette(c("red", "white", "blue")), 
+               main="Filled Contour Plot of Normal Random Values \nwith Specific Colors")
+
+
+
+### Plot Contour Color Maps for Random Values on a Map
+
+## Figure 9.6
+#Plot a 5-by-5 grid global map of standard normal random values 
+library(maps)
+#plot.new()
+#Step 1: Generate a 5-by-5 grid (pole-to-pole, lon 0 to 355) 
+Lat <- seq(-90,90,length=37) 
+#Must increasing 
+
+Lon <- seq(0,355,length=72) 
+#Must increasing
+
+#Generate the random values
+mapdat <- matrix(rnorm(72*37),nrow=72)
+#The matrix uses lon as row going and lat as column
+#Each row includes data from south to north
+#Define color
+int <- seq(-3,3,length.out=81) 
+rgb.palette <- colorRampPalette(c('black','purple','blue','white','green', 
+                                  'yellow','pink','red','maroon'), interpolate='spline')
+
+#Plot the values on the world map
+filled.contour(Lon, Lat, mapdat, color.palette=rgb.palette, 
+               levels=int, 
+               plot.title=title(xlab="Longitude", ylab="Latitude",
+                                main="Standard Normal Random Values on a World Map:\n5° Lat-Lon Grid"), 
+               plot.axes={ axis(1); axis(2);map('world2', add=TRUE);grid()} )
+#filled.contour() is a contour plot on an x-y grid. 
+#Background maps are added later in plot.axes={} 
+#axis(1) means ticks on the lower side
+#axis(2) means ticks on the left side
+#Save image with width=800, maintain aspect ratio
+
+
+
+### Figure 9.7
+
+#Plot a 5-by-5 grid regional map to cover USA and Canada 
+Lat3 <- seq(10,70,length=13)
+Lon3 <- seq(230,295,length=14) 
+mapdat <- matrix(rnorm(13*14),nrow=14) 
+int <- seq(-3,3,length.out=81) 
+rgb.palette <- colorRampPalette(c('black','purple','blue','white','green',
+                                  'yellow','pink','red','maroon'), interpolate='spline')
+
+filled.contour(Lon3, Lat3, mapdat, 
+               color.palette=rgb.palette, 
+               levels=int, plot.title=title(
+                 main="Standard Normal Random Values on\n a World Map: 5° Lat-Lon Grid",
+                 xlab="Longitude", ylab="Latitude"),
+               plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()})
+
+
+
+### Read .nc File
+
+#R plot of NCEP/NCAR Reanalysis PSD monthly temp data .nc file 
+#http://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis.derived.surface.html
+rm(list=ls(all=TRUE)) 
+#setwd("~/sshen/mathmodel")
+# Download netCDF file
+# Library
+#install.packages("ncdf") 
+library(ncdf4)
+# 4 dimensions: lon,lat,level,time 
+nc <- ncdf4::nc_open("~/Desktop/RMathModel/data/air.mon.mean.nc")
+nc
+nc$dim$lon$vals # output values 0.0->357.5 
+
+nc$dim$lat$vals # output values 90->-90 
+
+nc$dim$time$vals
+#nc$dim$time$units
+#nc$dim$level$vals
+Lon <- ncvar_get(nc, "lon")
+Lat1 <- ncvar_get(nc, "lat")
+Time <- ncvar_get(nc, "time")
+head(Time)
+
+library(chron)
+month.day.year(1297320/24,
+               c(month = 1, day = 1, year = 1800)) 
+precnc <- ncvar_get(nc, "air")
+dim(precnc) #826 months=1948-01 to 2016-10, 68 years 10 months
+#plot a 90S-90N precip. along a meridional line at 160E over Pacific 
+par(mfrow=c(1,1)) 
+plot(seq(90,-90,length=73),precnc[65,,1],
+     type="l", xlab="Latitude", 
+     ylab="Temperature [°C]",
+     main="90S-90N Temperature [°C] Along a Meridional Line at 160E: Jan. 1948",
+     lwd=3)
+grid(nx = NULL, ny = NULL)
+
+
+
+### Figure 9.9 (a)
+
+#Compute and plot climatology and standard deviation Jan 1948-Dec 2015 
+library(maps)
+climmat <- matrix(0, nrow=144, ncol=73)
+sdmat <- matrix(0, nrow=144, ncol=73)
+
+Jmon <- 12*seq(0,67,1) 
+for (i in 1:144){
+  for (j in 1:73) {
+    climmat[i,j] <- mean(precnc[i,j,Jmon])
+    sdmat[i,j] <- sd(precnc[i,j,])
+  }
+}
+mapmat <- climmat
+#Note that R requires coordinates increasing from south to north -90->90 
+#and from west to east from 0->360. We must arrange Lat and Lon this way. 
+
+#Correspondingly, we have to flip the data matrix left to right according to
+#the data matrix precnc[i,j,]: 360 (i.e. 180W) lon and from North Pole 
+#and South Pole, then lon 178.75W, 176.75W, ..., 0E. This puts Greenwich 
+#at the center, China on the right, and USA on the left. However, our map should
+#have the Pacific at the center, and USA on the right. Thus, we make a flip .
+
+Lat <- -Lat1
+
+mapmat <- mapmat[,length(mapmat[1,]):1]
+#Matrix flip around a column 
+#mapmat<- t(apply(t(mapmat),2,rev))
+int <- seq(-50,50,length.out=81) 
+rgb.palette <- colorRampPalette(c('black','blue','darkgreen',
+                                  'green','white', 'yellow','pink','red','maroon'),
+                                interpolate='spline') 
+
+filled.contour(Lon, Lat, mapmat, 
+               color.palette=rgb.palette, levels=int,
+               plot.title=title(main="NCEP RA 1948-2015 January Climatology [°C]",
+                                xlab="Longitude",ylab="Latitude"), 
+               plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()}, 
+               key.title=title(main="[°C]"))
+
+
+
+### Figure 9.9 (b)
+  
+#Plot standard deviation
+#plot.new()
+par(mgp=c(2,1,0))
+par(mar=c(3,3,2,2))
+mapmat <- sdmat[,seq(length(sdmat[1,]),1)]
+int <- seq(0,20,length.out=81)
+rgb.palette <- colorRampPalette(c('black','blue', 'green','yellow',
+                                  'pink','red','maroon'),interpolate='spline')
+
+filled.contour(Lon, Lat, mapmat, 
+               color.palette=rgb.palette, levels=int,
+               plot.title = 
+                 title(main="NCEP 1948-2015 Jan. SAT RA Standard Deviation [°C]",
+                       xlab="Longitude", ylab="Latitude"), 
+               plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()}, 
+               key.title=title(main="[°C]"))
+
+
