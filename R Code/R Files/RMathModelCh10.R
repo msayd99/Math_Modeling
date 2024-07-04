@@ -1,0 +1,463 @@
+################## R Codes for #################################
+## Introduction to Modern Mathematical Modeling with R: 
+#   A User's Manual to Train Mathematical Consultants
+#       A Cambridge University Press book by 
+#                     SSP Shen
+# 
+# The R code was written by 
+# Samuel Shen, Distinguished Professor
+# San Diego State University
+# Email: sshen@sdsu.edu
+# www.climatestatistics.org
+# R code Version 1.0: July 2024 San Diego, California, USA
+################################################################
+
+
+################################################################
+#
+# Chapter 10: Stochastic Models
+#
+################################################################
+
+### Statistical Indices from the Global Temperature From 1880 to 2015
+
+#setwd("~/sshen/mathmodel")
+dat1 <- read.table("~/Desktop/RMathModel/data/aravg.ann.land_ocean.90S.90N.v4.0.0.2015.txt") 
+dim(dat1)
+tmean15 <- dat1[,2] #Take only the second column of this data matrix 
+
+head(tmean15) #The first five values
+
+mean(tmean15)
+
+sd(tmean15) 
+
+var(tmean15)
+
+library(e1071) # R library needed to compute the following parameters
+
+skewness(tmean15)
+
+kurtosis(tmean15)
+
+median(tmean15)
+
+quantile(tmean15,
+         probs= c(0.05,0.25, 0.75, 0.95)) 
+
+yrtime15 <- seq(1880,2015)
+reg8015 <- lm(tmean15 ~ yrtime15)
+reg8015 # Display regression results
+
+# Plot the temperature time series and its trend line
+plot(yrtime15, tmean15, 
+     xlab="Year",ylab=expression(paste("Temperature [ ", degree, "C]")), 
+     main="Global Annual Mean Land and Ocean Surface \nTemperature Anomalies 1880-2015", 
+     type="l")
+grid(nx = NULL, ny = NULL)
+abline(reg8015, col="red")
+text(1933, 0.4, 
+     expression(paste("Linear Temperature Trend = 0.6678 ", degree, "C per century")), 
+     col="red",cex=1.2)
+
+
+
+### Histogram of a Set of Data
+
+h <- hist(tmean15, #Plot histogram 
+          main="Histogram of 1880-2015 Temperature Anomalies",
+          xlab="Temperature Anomalies") 
+
+xfit <- seq(min(tmean15),
+            max(tmean15), length=30) 
+areat <- diff(h$mids[1:2])*length(tmean15) 
+#Normalization area 
+
+yfit <- areat*dnorm(xfit, 
+                    mean=mean(tmean15), sd=sd(tmean15)) 
+lines(xfit,yfit,col="blue",lwd=2) 
+
+#Plot the normal fit
+plot(density(tmean15), #R estimate density 
+     main="R Estimate of Density",xlab="Temperature Anomalies") 
+
+lines(xfit,dnorm(xfit, #Moment estimated normal
+                 mean=mean(tmean15), sd=sd(tmean15)), col="blue") 
+grid(nx = NULL, ny = NULL)
+
+
+
+### Box Plot
+
+b <- boxplot(tmean15, ylab="Temperature Anomalies")
+grid(nx = NULL, ny = NULL)
+
+
+
+### Scatter Plot
+
+#Use setwd("working directory") to work in the right directory
+rm(list=ls()) 
+#setwd("~/sshen/mathmodel")
+par(mgp=c(1.5,0.5,0)) 
+ust <- read.csv("~/Desktop/RMathModel/data/USJantemp1951-2016-nohead.csv",
+                header=FALSE)
+
+soi <- read.csv("data/soi-data-nohead.csv", 
+                header=FALSE) 
+
+soid <- soi[,2] #Take the second column SOI data 
+soim <- matrix(soid, ncol=12, byrow=TRUE)
+#Make the SOI into a matrix with each month as a column 
+soij <- soim[,1] #Take the first column for Jan SOI 
+ustj <- ust[,3] #Take the third column: Jan US temp data 
+plot(soij, ustj, # Plot the scatter plot
+     xlim=c(-4,4), ylim=c(-8,8),
+     main="January SOI and the U.S. Temperature", 
+     xlab="SOI [dimensionless]",
+     ylab=expression(paste("U.S. Temperature [ ", degree, "F]")),
+     pch=19, cex.lab=1.3)
+grid(nx = NULL, ny = NULL)
+
+soiust <- lm(ustj  ~ soij) 
+#Linear regression
+
+abline(soiust, col="red", lwd=3) 
+#Linear regression line
+
+#El Nino Years
+soijc <- soij[c(1:7,9:32,34:41,43:47,49:65)] 
+ustjc <- ustj[c(1:7,9:32,34:41,43:47,49:65)]
+
+
+
+### QQ-Plot
+
+#setwd("~/sshen/mathmodel")
+dat1 <- read.table("~/Desktop/RMathModel/data/aravg.ann.land_ocean.90S.90N.v4.0.0.2015.txt") 
+dim(dat1)
+tmean15 <- dat1[,2] 
+#qq-plot for standardized anomalies
+tstand <- (tmean15 - mean(tmean15))/sd(tmean15)
+qqnorm(tstand, 
+       ylab=expression(paste("Global Temperature Anomalies [ ", degree, "C]")),
+       xlab="Quantile of N(0,1)", 
+       xlim=c(-3,3),ylim=c(-3,3)) 
+qqline(tstand, col = "red", lwd=2)
+grid(nx = NULL, ny = NULL)
+
+
+
+### What is a Probability Distribution?
+
+#plot.new()
+## Figure 10.6
+par(mar = c(2.5,4,4,1))
+layout(matrix(c(1,2,3), 1, 3, byrow = TRUE),
+       widths=c(3,3,3), heights=c(1,1,1)) 
+
+lasvegas <- c(0.58,0.42)
+sandiego <- c(0.4,0.6)
+seattle <- c(0.16,0.84)
+
+names(lasvegas) <- c("Clear","Cloudy") 
+names(sandiego) <- c("Clear","Cloudy") 
+names(seattle) <- c("Clear","Cloudy") 
+
+barplot(lasvegas,col=c("skyblue","gray"),ylab="Probability") 
+mtext("Las Vegas", side=3,line=1) 
+
+barplot(sandiego,col=c("skyblue","gray"))
+mtext("San Diego", side=3,line=1) 
+
+barplot(seattle,col=c("skyblue","gray"))
+mtext("Seattle", side=3,line=1) 
+mtext("Probability Distribution of Weather",
+      cex=1.3,side = 3, line = -1.5, outer = TRUE)
+
+
+
+### Figure 10.7
+
+# Create data for the area to shade
+cord.x <- c(-3,seq(-3,3,0.01),-1)
+cord.y <- c(0,dnorm(seq(-3,3,0.01)),0)
+
+# Make a curve
+curve(dnorm(x,0,1), xlim=c(-3,3), lwd=3,
+      main='PDF of the Standard Normal Distribution',
+      xlab='Random Variable x',
+      ylab='Probability Density')
+
+# Add the shaded area using many lines
+polygon(cord.x,cord.y,col='skyblue') 
+polygon(c(-1.5,-1.5, -1.2, -1.2),
+        c(0, dnorm(-1.5),dnorm(-1.2), 0.0),col='white')
+
+text(0,0.18, "Area = 1", cex=1.5)
+text(-1.65,0.045,"f(x)")
+text(-1.35,0.075,"dx")
+text(-1.6,0.0095,"x")
+text(-0.9,0.0095,"x+dx")
+
+arrows(-2,0.2,-1.35,0.13, length=0.1)
+text(-2,0.21,"dA = f(x)dx")
+text(0,0.09,expression(paste(integral(f(x)*dx,- infinity,infinity),"=1")))
+
+
+
+### Normal Distribution
+
+#Normal distribution plot
+x <- seq(-8, 8, length=200)
+
+plot(x,dnorm(x, mean=0, sd=1), type="l", lwd=4, col="red",
+     ylim = c(0,1),
+     xlab="Random Variable x",
+     ylab ="Probability Density", 
+     main=expression(Normal ~Distribution  ~ N(mu,sigma^2)))
+grid(nx = NULL, ny = NULL)
+lines(x,dnorm(x, mean=0, sd=2), type="l", lwd=2, col="blue") 
+lines(x,dnorm(x, mean=0, sd=0.6), type="l", lwd=2, col="black") 
+lines(x,dnorm(x, mean=3, sd=1), type="l", lwd=2, col="purple") 
+lines(x,dnorm(x, mean=-4, sd=1), type="l", lwd=2, col="green") 
+
+#ex.cs1 <- expression(plain(sin) * phi, paste("cos", phi)) 
+ex.cs1 <- expression(paste(mu, "=0", ~"," ~ sigma, "=1"),
+                     paste(mu, "=0", ~"," ~ sigma, "=2"), 
+                     paste(mu, "=0", ~"," ~ sigma, "=1/2"),
+                     paste(mu, "=3", ~"," ~ sigma, "=1"), 
+                     paste(mu, "=-4", ~"," ~ sigma, "=1"))
+
+legend("topleft",legend = ex.cs1, lty=1, 
+       col=c('red','blue','black','purple','green'), cex=1, bty="n")
+
+mu <- 0
+sig <- 1
+intg <- function(x){(1/(sig*sqrt(2*pi)))*exp(-(x-mu)^2/(2*sig^2))} 
+integrate(intg,-2,2)
+
+#Or using the R built-in function dnorm to get the same result 
+integrate(dnorm,-2,2)
+
+integrate(dnorm,-1.96,1.96)
+
+
+
+### Student's t-Distribution
+
+#Plot t-distribution by R
+x <- seq(-4, 4, length=200)
+
+#plot.new()
+plot(x,dt(x, df=3), type="l", lwd=4, col="red", ylim = c(0,0.6),
+     xlab="Random Variable t",
+     ylab ="Probability Density",
+     main="Student t-Distribution T(t,df)")
+grid(nx = NULL, ny = NULL)
+
+lines(x,dt(x, df=1), type="l", lwd=2, col="blue") 
+lines(x,dt(x, df=2), type="l", lwd=2, col="black") 
+lines(x,dt(x, df=6), type="l", lwd=2, col="purple") 
+lines(x,dt(x, df=Inf), type="l", lwd=2, col="green") 
+
+#ex.cs1 <- expression(plain(sin) * phi, paste("cos", phi)) 
+ex.cs1 <- c("df = 3", "df = 1","df = 2","df = 6",expression(paste("df = ",infinity))) 
+legend("topleft",legend = ex.cs1, lty=1,
+       col=c('red','blue','black','purple','green'), cex=1, bty="n")
+
+
+
+
+### Probability of a Sample Inside a Confidence Interval
+
+#Confidence interval simulation 
+mu <- 14 #true mean
+
+sig <- 0.3 #true sd
+
+n <- 50 #sample size 
+
+d <- 1.96*sig/sqrt(n)
+lowerlim <- mu-d
+upperlim <- mu+d
+ksim <- 10000 #number of simulations
+k <- 0 # simulation counter
+xbar <- 1:ksim
+for (i in 1:ksim)
+{
+  xbar[i] <- mean(rnorm(n, mean = mu, sd = sig))
+  if (xbar[i] >= lowerlim & xbar[i] <= upperlim)
+    k <- k+1
+}
+
+print(c(k,ksim))
+
+#plot the histogram 
+#plot.new()
+hist(xbar,breaks=51,xlab=expression(paste("Temperature [ ", degree, "C]")),
+     main="Histogram of Simulated Sample Mean Temperatures",
+     xaxt="n",ylim=c(0,600))
+
+axis(1,pos = -20, at =c(13.92, 14.0, 14.08))
+text(14,550,"95% Confidence Interval: (13.92,14.08)",cex=1.2)
+#dev.off()
+
+
+
+### Confidence Interval of the Sample Mean
+
+#Figure of confidence intervals and tail probability
+par(mar = c(2.5,3.5,2.0,0.5))
+rm(list=ls())
+par(mgp=c(1.4,0.5,0)) 
+curve(dnorm(x,0,1), xlim=c(-3,3), lwd=3,
+      main='Confidence Intervals and Confidence Levels',
+      xlab="True Mean as a Random Variable", 
+      ylab='Probability Density',xaxt="n", cex.lab=1.3)
+
+polygon(c(-1.96, seq(-1.96,1.96,len=100), 1.96), 
+        c(0,dnorm(seq(-1.96,1.96,len=100)),0),col='skyblue')
+
+polygon(c(-1.0,seq(-1.0, 1, length=100), 1),
+        c(0, dnorm(seq(-1.0, 1, length=100)), 0.0),col='white')
+
+polygon(c(-3.0,seq(-3.0, -1.96, length=100), -1.96),
+        c(0, dnorm(seq(-3.0, -1.96, length=100)), 0.0),col='red')
+
+polygon(c(1.96,seq(1.96, 3.0, length=100), 3.0),
+        c(0, dnorm(seq(1.96, 3.0, length=100)), 0.0),col='red')
+
+points(c(-1,1), c(0,0), pch=19, col="blue") 
+points(0,0, pch=19) 
+points(c(-1.96,1.96),c(0,0),pch=19, col="red")
+
+text(0,0.02, expression(bar(x)), cex=1.0) 
+text(-1.50,0.02, "SE", cex=1.0) 
+text(-0.60,0.02, "SE", cex=1.0) 
+text(1.50,0.02, "SE", cex=1.0)
+text(0.60,0.02, "SE", cex=1.0) 
+text(0,0.2, "Probability = 0.68") 
+
+arrows(-2.8,0.06,-2.35,0.01, length=0.1) 
+text(-2.5,0.09, "Probability")
+
+
+
+### Example 10.1
+
+#Estimate the mean and error bar for a large sample
+#Confidence interval for NOAAGlobalTemp 1880-2015 
+#setwd("~/sshen/mathmodel")
+
+dat1 <- read.table("~/Desktop/RMathModel/data/aravg.ann.land_ocean.90S.90N.v4.0.0.2015.txt") 
+dim(dat1)
+tmean15 <- dat1[,2]
+MeanEst <- mean(tmean15)
+sd1 <- sd(tmean15)
+StandErr <- sd1/sqrt(length(tmean15))
+ErrorMar <- 1.96*StandErr
+MeanEst
+
+print(c(MeanEst-ErrorMar, MeanEst+ErrorMar))
+
+
+
+### Statistical Inference for x-bar Using a Z-score
+
+rm(list=ls())
+par(mar = c(2.3,3.0,2.0,0.5))
+rm(list = ls())
+par(mgp = c(1.0,0.5,0))
+curve(dnorm(x,0,1), xlim = c(-3,3), lwd = 3,
+      main = 'Z-score, p-value, and Significance Level',
+      xlab = "z: Standard Normal Random Variable",
+      ylab = 'Probability Density',xaxt = "n",yaxt = "n",
+      cex.lab = 1.2,cex.lab = 1.1,cex.axis = 1.1,cex.main = 1.35, ylim = c(-0.1,0.4)) 
+lines(c(-3,3),c(0,0))
+arrows(-3,-0.1,-2.02,-0.1, lwd = 12,col = 'skyblue', length = 0.2, code = 3)
+arrows(3,-0.1,-1.90,-0.1, lwd = 12,col = 'green', length = 0.2, code = 3)
+polygon(c(-3.0,seq(-3.0, -2.5, length = 100), -2.5),
+        c(0, dnorm(seq(-3.0, -2.5, length = 100)), 0.0),col = 'skyblue')
+polygon(c(-1.96,seq(-1.96, 3, length = 100), 3),
+        c(0, dnorm(seq(-1.96, 3, length = 100)), 0.0),col = 'lightgreen')
+points(-1.96,0, pch = 19, col = "red")
+points(-2.5,0,pch = 19, col = "skyblue")
+text(-1.4,-0.02, expression(z[0.025]~' = -1.96'), cex = 1.1, col = 'red')
+text(-2.40,-0.02, "z-score", cex = 1.1, col = 'skyblue')
+arrows(-2.8,0.06,-2.6,0.003, length = 0.1)
+lines(c(-1.96,-1.96),c(-0.1, .4),lwd = 1.5, col = 'red')
+text(-2.5,0.09, "p-value", cex = 1.3) 
+text(1.0,-0.06, expression(H[0] ~'region'), cex = 1.1)
+text(-2.5,-0.06, expression(H[1] ~'region'), cex = 1.1)
+text(0,0.15, expression(H[0] ~'probability 0.975'), cex = 1.1)
+
+
+
+### Example 10.3
+
+#Hypothesis test for NOAAGlobalTemp 2006-2015 
+#setwd("~/sshen/mathmodel")
+dat1 <- read.table("~/Desktop/RMathModel/data/aravg.ann.land_ocean.90S.90N.v4.0.0.2015.txt")
+
+tm0615 <- dat1[127:136,2]
+MeanEst <- mean(tm0615)
+MeanEst
+
+sd1 <- sd(tm0615)
+sd1
+
+n <- 10
+t_score <- (MeanEst -0)/(sd1/sqrt(n))
+t_score
+
+1-pt(t_score, df=n-1) #p-value
+
+qt(1-0.025, df=n-1) #critical t-score
+
+
+
+### Example 10.4
+
+#Hypothesis test for global temp for 1981-1990 and 1991-2000 
+#setwd("~/sshen/mathmodel")
+dat1 <- read.table("~/Desktop/RMathModel/data/aravg.ann.land_ocean.90S.90N.v4.0.0.2015.txt") 
+
+tm8190 <- dat1[102:111,2]
+tm9100 <- dat1[112:121,2]
+
+barT1 <- mean(tm8190)
+barT2 <- mean(tm9100)
+
+S1sd <- sd(tm8190)
+S2sd <- sd(tm9100)
+
+n1 <- n2 <- 10
+
+Spool <- sqrt(((n1 - 1)*S1sd^2 + (n2 - 1)*S2sd^2)/(n1 + n2 -2))
+t <- (barT2 - barT1)/(Spool*sqrt(1/n1 + 1/n2))
+
+tlow <- qt(0.025, df= n1 + n2 -2)
+tup <- qt(0.975, df= n1 + n2 -2)
+
+paste("t-score=", round(t,digits=5),
+      "tlow=", round(tlow,digits=5),
+      "tup=", round(tup,digits=5))
+pvalue <- 1-pt(t, df= n1 + n2 -2)
+paste( "p-value=", pvalue)
+paste("1981-90 temp=", barT1, "1991-00 temp=",barT2) 
+
+barT2 - barT1
+
+
+
+### Statistical Inference of Linear Trend
+
+#setwd("~/sshen/mathmodel")
+dat1 <- read.table("~/Desktop/RMathModel/data/aravg.ann.land_ocean.90S.90N.v4.0.0.2015.txt") 
+
+tm <- dat1[,2]
+x <- 1880:2015
+summary(lm(tm ~ x))
+
+
